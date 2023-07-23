@@ -53,19 +53,21 @@ public:
         : result(res), date(dt), time(tm), count(cnt) {}
 
     // Generate random result
-    void generate_result() {
+    string generate_result() {
         // Assuming "positive" and "negative" are the possible results
         int random = rand() % 2;
+        // cout<<"Random : "<<random<<endl;
         if (random == 0) {
             result = "positive";
         } else {
             result = "negative";
         }
         count++;
+        return result;
     }
 };
 
-
+// Patient class (inherits from Person and contains Corona_Test)
 // Patient class (inherits from Person and contains Corona_Test)
 class Patient : public Person, public Corona_Test {
 protected:
@@ -76,8 +78,13 @@ public:
     // Constructor
     Patient(int id, string firstName, string lastName, char gen, int ag, string bloodGr)
         : Person(id, firstName, lastName, gen, ag, bloodGr), Corona_Test(), bed_no(-1) {
-        generate_result();
-        health_status = "recovering";
+        // generate_result();
+        if(generate_result() =="positive"){
+             health_status = "recovering";
+        }
+        else{
+        health_status = "Healthy";
+        }
     }
 
     // Assign a bed to the patient
@@ -212,8 +219,8 @@ int main() {
     
 
     // Update health status of patients
-    patient1.update_health_status("recovering");
-    patient2.update_health_status(" recovered");
+    // patient1.update_health_status("recovering");
+    // patient2.update_health_status(" recovered");
     
     cout << "Patient 1 Details:\n";
     patient1.print_data();
