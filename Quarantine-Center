@@ -65,7 +65,7 @@ public:
     }
 };
 
-// Patient class (inherits from Person and contains Corona_Test)
+
 // Patient class (inherits from Person and contains Corona_Test)
 class Patient : public Person, public Corona_Test {
 protected:
