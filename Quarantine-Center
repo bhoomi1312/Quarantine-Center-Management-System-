@@ -1,0 +1,240 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <cstdlib>
+#include <ctime>
+
+using namespace std;
+
+// Forward declaration
+class Doctor;
+class Quarantine_Center;
+
+// Person class
+class Person {
+protected:
+    int person_id;
+    string first_name;
+    string last_name;
+    char gender;
+    int age;
+    string blood_group;
+
+public:
+    // Constructor
+    Person(int id, string firstName, string lastName, char gen, int ag, string bloodGr)
+        : person_id(id), first_name(firstName), last_name(lastName),
+          gender(gen), age(ag), blood_group(bloodGr) {}
+
+    // Print data of the person
+    void print_data() {
+        cout << "Person ID: " << person_id << "\n";
+        cout << "Name: " << first_name << " " << last_name << "\n";
+        cout << "Gender: " << gender << "\n";
+        cout << "Age: " << age << "\n";
+        cout << "Blood Group: " << blood_group << "\n";
+    }
+};
+
+// Corona_Test class
+class Corona_Test {
+protected:
+    string result;
+    string date;
+    string time;
+    int count;
+
+public:
+    // Default constructor
+    Corona_Test() {}
+
+    // Constructor
+    Corona_Test(string res, string dt, string tm, int cnt)
+        : result(res), date(dt), time(tm), count(cnt) {}
+
+    // Generate random result
+    void generate_result() {
+        // Assuming "positive" and "negative" are the possible results
+        int random = rand() % 2;
+        if (random == 0) {
+            result = "positive";
+        } else {
+            result = "negative";
+        }
+        count++;
+    }
+};
+
+// Patient class (inherits from Person and contains Corona_Test)
+// Patient class (inherits from Person and contains Corona_Test)
+class Patient : public Person, public Corona_Test {
+protected:
+    int bed_no;
+    string health_status;
+
+public:
+    // Constructor
+    Patient(int id, string firstName, string lastName, char gen, int ag, string bloodGr)
+        : Person(id, firstName, lastName, gen, ag, bloodGr), Corona_Test(), bed_no(-1) {
+        generate_result();
+        health_status = "recovering";
+    }
+
+    // Assign a bed to the patient
+    void assign_bed(int bedNumber) {
+        bed_no = bedNumber;
+    }
+
+    // Update health status
+    void update_health_status(string status) {
+        health_status = status;
+    }
+
+    // Get the test result of the patient
+    string get_test_result() {
+        return result;
+    }
+
+    // Get the health status of the patient
+    string get_health_status() {
+        return health_status;
+    }
+
+    // Get the person_id of the patient
+    int get_person_id() {
+        return person_id;
+    }
+};
+
+
+// Doctor class
+class Doctor {
+protected:
+    string name;
+    int age;
+    string specialty;
+
+public:
+    // Constructor
+    Doctor(string n, int a, string sp) : name(n), age(a), specialty(sp) {}
+
+    // Print data of the doctor
+    void print_data() {
+        cout << "Doctor Name: " << name << "\n";
+        cout << "Age: " << age << "\n";
+        cout << "Specialty: " << specialty << "\n";
+    }
+};
+
+// Quarantine_Center class
+class Quarantine_Center {
+protected:
+    int center_id;
+    string location;
+    int quantity_of_beds;
+    int no_of_patients;
+    string contact_number;
+    vector<Patient*> patients;
+
+public:
+    // Constructor
+    Quarantine_Center(int id, string loc, int qty, string contact)
+        : center_id(id), location(loc), quantity_of_beds(qty), no_of_patients(0), contact_number(contact) {}
+
+    // Add a patient to the center
+    void addPatient(Patient* patient) {
+        if (no_of_patients >= quantity_of_beds) {
+            throw "Center is Full";
+        }
+
+        patients.push_back(patient);
+        no_of_patients++;
+    }
+
+    // Remove a patient from the center
+    void removePatient(Patient* patient) {
+        for (size_t i = 0; i < patients.size(); i++) {
+            if (patients[i] == patient) {
+                patients.erase(patients.begin() + i);
+                no_of_patients--;
+                return;
+            }
+        }
+    }
+
+    // Print data of the quarantine center
+    void printData() {
+        cout << "--------------------------------------\n";
+        cout << "Quarantine Center ID: " << center_id << "\n";
+        cout << "Location: " << location << "\n";
+        cout << "Number of Beds: " << quantity_of_beds << "\n";
+        cout << "Contact Number: " << contact_number << "\n";
+        cout << "Current Occupancy: " << no_of_patients << "/" << quantity_of_beds << "\n";
+        cout << "--------------------------------------\n";
+    }
+
+    // Search for a patient by person_id
+    Patient* searchPatient(int personId) {
+        for (size_t i = 0; i < patients.size(); i++) {
+            if (patients[i]->get_person_id() == personId) {
+                return patients[i];
+            }
+        }
+        return nullptr;
+    }
+};
+
+int main() {
+    srand(static_cast<unsigned>(time(0))); // Seed the random number generator
+
+    // Create a Quarantine_Center
+    Quarantine_Center center(1, "XYZ Quarantine Center", 20, "1234567890");
+
+    // Create patients and doctors
+    Patient patient1(1001, "John", "Doe", 'M', 30, "O+");
+    Patient patient2(1002, "Jane", "Smith", 'F', 25, "A+");
+    Doctor doctor1("Dr. Smith", 40, "Infectious Diseases");
+    Doctor doctor2("Dr. Johnson", 35, "Respiratory Medicine");
+
+    // Add patients to the center
+    try {
+        center.addPatient(&patient1);
+        center.addPatient(&patient2);
+    } catch (const char* msg) {
+        cout << "Exception: " << msg << "\n";
+    }
+
+    // Assign beds to patients
+    patient1.assign_bed(1);
+    patient2.assign_bed(2);
+
+    center.printData();
+    
+
+    // Update health status of patients
+    patient1.update_health_status("recovering");
+    patient2.update_health_status(" recovered");
+    
+    cout << "Patient 1 Details:\n";
+    patient1.print_data();
+    cout << "Test Result: " << patient1.get_test_result() << "\n";
+    cout << "Health Status: " << patient1.get_health_status() << "\n";
+    cout << "\nPatient 2 Details:\n";
+    patient2.print_data();
+    cout << "Test Result: " << patient2.get_test_result() << "\n";
+    cout << "Health Status: " << patient2.get_health_status() << "\n";
+    
+    // Remove a patient from the center
+    center.removePatient(&patient2);
+
+    // Print data of the center after removal
+    center.printData();
+
+    // Print data of doctors
+    cout << "\nDoctor 1 Details:\n";
+    doctor1.print_data();
+    cout << "\nDoctor 2 Details:\n";
+    doctor2.print_data();
+
+    return 0;
+}
